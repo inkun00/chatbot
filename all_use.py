@@ -5,7 +5,7 @@ import json
 # Streamlit의 세션 상태를 사용하여 대화 내용을 저장
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
-        {'role': 'user', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화중입니다. 대화 내용은 오로지 학교 수업과 관련되어야 합니다. 다른 대화 내용은 거부해야합니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 해당 내용과 관련없는 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어주세요'},
+        {'role': 'user', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화 중입니다. 대화 내용은 오로지 학교 수업과 관련되어야 합니다. 다른 대화 내용은 거부해야 합니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 해당 내용과 관련 없는 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어 주세요.'},
         {'role': 'assistant', 'content': '네'},
         {'role': 'assistant', 'content': '어떤 주제로 이야기를 나눠볼까요?'}
     ]
@@ -82,7 +82,7 @@ st.markdown('<h1 class="title">학습 도움 챗봇</h1>', unsafe_allow_html=Tru
 
 # Add radio buttons for grade levels with a default value
 grade_level = st.radio(
-    "연령을 선택하세요:",
+    "학년을 선택하세요:",
     ('초등학생', '중학생', '고등학생'),
     horizontal=True
 )
@@ -150,7 +150,6 @@ def send_message():
         # 사용자 입력에 문장을 추가
         user_message = st.session_state.input_message
         full_message = user_message + f" {st.session_state.user_age}에 맞게 생성해"
-        st.session_state.chat_history.append({"role": "user", "content": full_message})
         st.session_state.chat_history.append({"role": "user", "content": user_message})
 
         completion_request = {
@@ -169,8 +168,12 @@ def send_message():
         st.session_state.input_message = ""  # 입력 필드를 초기화합니다.
 
 def copy_chat_history():
-    # 두 번째 메시지를 제외하고 대화 내용을 복사합니다.
-    chat_history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in st.session_state.chat_history[2:]])
+    # 대화 내용을 필터링하여 복사합니다.
+    filtered_chat_history = [
+        msg for msg in st.session_state.chat_history[2:]
+        if not msg["content"].startswith("나는") and "내 연령에 맞는 대화를 해주세요." not in msg["content"]
+    ]
+    chat_history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in filtered_chat_history])
     st.session_state.copied_chat_history = chat_history_text
 
 # Display the chat history (excluding the first initial instruction and specific messages)
@@ -208,7 +211,7 @@ for message in st.session_state.chat_history[3:]:  # Index 3부터 출력 (초�
 with st.form(key="input_form", clear_on_submit=True):
     cols = st.columns([4, 1, 1])  # 비율을 설정하여 열을 나눔
     with cols[0]:
-        user_message = st.text_input("알아보고 싶은 주제와 관련된 이야기를 나눠보세요:", key="input_message", placeholder="")
+        user_message = st.text_input("학습하면서 궁금한 주제에 관해서 이야기를 나눠보세요:", key="input_message", placeholder="")
     with cols[1]:
         submit_button = st.form_submit_button(label="입력", on_click=send_message)
     with cols[2]:
