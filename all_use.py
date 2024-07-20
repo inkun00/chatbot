@@ -176,6 +176,20 @@ def copy_chat_history():
     chat_history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in filtered_chat_history])
     st.session_state.copied_chat_history = chat_history_text
 
+# Display the initial assistant message
+st.markdown(f'''
+    <div style="
+        background-color: #90EE90; 
+        text-align: left; 
+        padding: 10px; 
+        border-radius: 5px; 
+        margin: 10px 0;
+        max-width: 80%;
+        float: left;
+        clear: both;">
+        어떤 주제로 이야기를 나눠볼까요?
+    </div>''', unsafe_allow_html=True)
+
 # Display the chat history (excluding the first initial instruction and specific messages)
 for message in st.session_state.chat_history[3:]:  # Index 3부터 출력 (초기 지시와 첫 assistant 메시지 제외)
     if "에 맞게 생성해" not in message["content"] and "나는" not in message["content"]:  # 필터링된 문장 제외
