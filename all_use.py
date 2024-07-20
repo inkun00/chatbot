@@ -82,7 +82,7 @@ st.markdown('<h1 class="title">학습 도움 챗봇</h1>', unsafe_allow_html=Tru
 
 # Add radio buttons for grade levels with a default value
 grade_level = st.radio(
-    "학년을 선택하세요:",
+    "연령을 선택하세요:",
     ('초등학생', '중학생', '고등학생'),
     horizontal=True
 )
