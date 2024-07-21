@@ -190,8 +190,8 @@ st.markdown(f'''
         어떤 주제로 이야기를 나눠볼까요?
     </div>''', unsafe_allow_html=True)
 
-# Display the chat history (excluding the first initial instruction and specific messages)
-for message in st.session_state.chat_history[3:]:  # Index 3부터 출력 (초기 지시와 첫 assistant 메시지 제외)
+# Display the chat history (excluding the first initial instruction)
+for message in st.session_state.chat_history[1:]:  # Index 1부터 출력 (초기 지시 제외)
     if "에 맞게 생성해" not in message["content"] and "나는" not in message["content"]:  # 필터링된 문장 제외
         role = "User" if message["role"] == "user" else "Chatbot"
         if role == "User":
