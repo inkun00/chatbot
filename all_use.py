@@ -147,7 +147,6 @@ def send_message():
     if st.session_state.input_message:
         # 사용자 입력에 문장을 추가
         user_message = st.session_state.input_message
-        full_message = user_message + f" {st.session_state.user_age}에 맞게 생성해"
         st.session_state.chat_history.append({"role": "user", "content": user_message})
 
         completion_request = {
