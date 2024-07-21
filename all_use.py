@@ -98,6 +98,11 @@ def update_user_age():
         st.session_state.user_age = user_age
         st.session_state.last_grade_level = grade_level
 
+        # Update chat history with user age message
+        st.session_state.chat_history.append(
+            {'role': 'user', 'content': f'나는 {st.session_state.user_age} 입니다. 내 연령에 맞는 대화를 해주세요.'}
+        )
+
 # Call the update function with the selected grade level
 update_user_age()
 
