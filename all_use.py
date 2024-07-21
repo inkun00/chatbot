@@ -4,7 +4,9 @@ import json
 
 # Streamlit의 세션 상태를 사용하여 대화 내용을 저장
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+    st.session_state.chat_history = [
+        {'role': 'system', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화 중입니다. 대화 내용은 오로지 학교 수업과 관련되어야 합니다. 다른 대화 내용은 거부해야 합니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 해당 내용과 관련 없는 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어 주세요.'}
+    ]
 
 if "input_message" not in st.session_state:
     st.session_state.input_message = ""
@@ -149,7 +151,7 @@ def send_message():
         st.session_state.chat_history.append({"role": "user", "content": user_message})
 
         completion_request = {
-            'messages': [{"role": "user", "content": user_message}],
+            'messages': st.session_state.chat_history,
             'topP': 0.8,
             'topK': 0,
             'maxTokens': 256,
