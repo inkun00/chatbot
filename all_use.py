@@ -5,7 +5,7 @@ import json
 # Streamlit의 세션 상태를 사용하여 대화 내용을 저장
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
-        {'role': 'system', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화 중입니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 장난, 놀이, 폭력적, 선정적인 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어 주세요.'}
+        {'role': 'system', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화 중입니다. 대화 내용은 오로지 학교 수업과 관련되어야 합니다. 다른 대화 내용은 거부해야 합니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 해당 내용과 관련 없는 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어 주세요.'}
     ]
 
 if "input_message" not in st.session_state:
@@ -168,14 +168,14 @@ def send_message():
 def copy_chat_history():
     # 대화 내용을 필터링하여 복사합니다.
     filtered_chat_history = [
-        msg for msg in st.session_state.chat_history
+        msg for msg in st.session_state.chat_history[1:]  # 시스템 메시지 제외
         if not msg["content"].startswith("나는") and "내 연령에 맞는 대화를 해주세요." not in msg["content"]
     ]
     chat_history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in filtered_chat_history])
     st.session_state.copied_chat_history = chat_history_text
 
-# Display the chat history
-for message in st.session_state.chat_history:
+# Display the chat history (excluding the initial system message)
+for message in st.session_state.chat_history[1:]:
     if "에 맞게 생성해" not in message["content"] and "나는" not in message["content"]:  # 필터링된 문장 제외
         role = "User" if message["role"] == "user" else "Chatbot"
         if role == "User":
