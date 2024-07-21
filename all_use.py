@@ -175,34 +175,33 @@ def copy_chat_history():
 
 # Display the chat history (excluding the initial system message)
 for message in st.session_state.chat_history[1:]:
-    if "에 맞게 생성해" not in message["content"] and "나는" not in message["content"]:  # 필터링된 문장 제외
-        role = "User" if message["role"] == "user" else "Chatbot"
-        if role == "User":
-            st.markdown(f'''
-                <div style="
-                    background-color: #ADD8E6; 
-                    text-align: right; 
-                    padding: 10px; 
-                    border-radius: 5px; 
-                    margin: 10px 0;
-                    max-width: 80%;
-                    float: right;
-                    clear: both;">
-                    {message["content"]}
-                </div>''', unsafe_allow_html=True)
-        else:
-            st.markdown(f'''
-                <div style="
-                    background-color: #90EE90; 
-                    text-align: left; 
-                    padding: 10px; 
-                    border-radius: 5px; 
-                    margin: 10px 0;
-                    max-width: 80%;
-                    float: left;
-                    clear: both;">
-                    {message["content"]}
-                </div>''', unsafe_allow_html=True)
+    role = "User" if message["role"] == "user" else "Chatbot"
+    if role == "User":
+        st.markdown(f'''
+            <div style="
+                background-color: #ADD8E6; 
+                text-align: right; 
+                padding: 10px; 
+                border-radius: 5px; 
+                margin: 10px 0;
+                max-width: 80%;
+                float: right;
+                clear: both;">
+                {message["content"]}
+            </div>''', unsafe_allow_html=True)
+    else:
+        st.markdown(f'''
+            <div style="
+                background-color: #90EE90; 
+                text-align: left; 
+                padding: 10px; 
+                border-radius: 5px; 
+                margin: 10px 0;
+                max-width: 80%;
+                float: left;
+                clear: both;">
+                {message["content"]}
+            </div>''', unsafe_allow_html=True)
 
 # Create a form for user input and buttons
 with st.form(key="input_form", clear_on_submit=True):
