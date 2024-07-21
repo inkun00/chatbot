@@ -97,11 +97,6 @@ def update_user_age():
         st.session_state.user_age = user_age
         st.session_state.last_grade_level = grade_level
 
-        # Update chat history with user age message
-        st.session_state.chat_history.append(
-            {'role': 'user', 'content': f'나는 {st.session_state.user_age} 입니다. 내 연령에 맞는 대화를 해주세요.'}
-        )
-
 # Call the update function with the selected grade level
 update_user_age()
 
@@ -176,6 +171,9 @@ def copy_chat_history():
 # Display the chat history (excluding the initial system message)
 for message in st.session_state.chat_history[1:]:
     role = "User" if message["role"] == "user" else "Chatbot"
+    # "나는 ~세 이하 입니다." 메시지를 출력하지 않도록 조건 추가
+    if "나는" in message["content"] and "내 연령에 맞는 대화를 해주세요." in message["content"]:
+        continue
     if role == "User":
         st.markdown(f'''
             <div style="
