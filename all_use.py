@@ -5,8 +5,9 @@ import json
 # Streamlit의 세션 상태를 사용하여 대화 내용을 저장
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
-        {'role': 'system', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화 중입니다. 대화 내용은 오로지 학교 수업과 관련되어야 합니다. 다른 대화 내용은 거부해야 합니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 해당 내용과 관련 없는 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어 주세요.'},
-        {'role': 'assistant', 'content': '안녕하세요, 무엇에 관하여 이야기를 나눠볼까요?'}
+        {'role': 'user', 'content': '당신은 학교 수업에서 사용되는 인공지능입니다. 당신은 학생과 대화 중입니다. 대화 내용은 오로지 학교 수업과 관련되어야 합니다. 다른 대화 내용은 거부해야 합니다. 응답은 세 문장 이하로 생성하시오. 응답의 끝에는 질문을 추가해서 대화를 이어가시오. 해당 내용과 관련 없는 내용이 입력되면 답변을 거부하고 원래 주제로 대화할 수 있도록 이끌어 주세요.'},
+        {'role': 'assistant', 'content': '네'},
+        {'role': 'assistant', 'content': '어떤 주제로 이야기를 나눠볼까요?'}
     ]
 
 if "input_message" not in st.session_state:
@@ -81,7 +82,7 @@ st.markdown('<h1 class="title">학습 도움 챗봇</h1>', unsafe_allow_html=Tru
 
 # Add radio buttons for grade levels with a default value
 grade_level = st.radio(
-    "연령을 선택하세요:",
+    "학년을 선택하세요:",
     ('초등학생', '중학생', '고등학생'),
     horizontal=True
 )
@@ -148,8 +149,9 @@ def send_message():
     if st.session_state.input_message:
         # 사용자 입력에 문장을 추가
         user_message = st.session_state.input_message
+        full_message = user_message + f" {st.session_state.user_age} 학생이 이해하기 쉽게 대화해"
         st.session_state.chat_history.append({"role": "user", "content": user_message})
-
+   
         completion_request = {
             'messages': st.session_state.chat_history,
             'topP': 0.8,
@@ -168,44 +170,56 @@ def send_message():
 def copy_chat_history():
     # 대화 내용을 필터링하여 복사합니다.
     filtered_chat_history = [
-        msg for msg in st.session_state.chat_history[1:]  # 시스템 메시지 제외
+        msg for msg in st.session_state.chat_history[2:]
         if not msg["content"].startswith("나는") and "내 연령에 맞는 대화를 해주세요." not in msg["content"]
     ]
     chat_history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in filtered_chat_history])
     st.session_state.copied_chat_history = chat_history_text
 
-# Display the chat history (excluding the initial system message)
-for message in st.session_state.chat_history[1:]:
-    role = "User" if message["role"] == "user" else "Chatbot"
-    # "나는 ~세 이하 입니다." 메시지를 출력하지 않도록 조건 추가
-    if "나는" in message["content"] and "내 연령에 맞는 대화를 해주세요." in message["content"]:
-        continue
-    if role == "User":
-        st.markdown(f'''
-            <div style="
-                background-color: #ADD8E6; 
-                text-align: right; 
-                padding: 10px; 
-                border-radius: 5px; 
-                margin: 10px 0;
-                max-width: 80%;
-                float: right;
-                clear: both;">
-                {message["content"]}
-            </div>''', unsafe_allow_html=True)
-    else:
-        st.markdown(f'''
-            <div style="
-                background-color: #90EE90; 
-                text-align: left; 
-                padding: 10px; 
-                border-radius: 5px; 
-                margin: 10px 0;
-                max-width: 80%;
-                float: left;
-                clear: both;">
-                {message["content"]}
-            </div>''', unsafe_allow_html=True)
+# Display the initial assistant message
+st.markdown(f'''
+    <div style="
+        background-color: #90EE90; 
+        text-align: left; 
+        padding: 10px; 
+        border-radius: 5px; 
+        margin: 10px 0;
+        max-width: 80%;
+        float: left;
+        clear: both;">
+        어떤 주제로 이야기를 나눠볼까요?
+    </div>''', unsafe_allow_html=True)
+
+# Display the chat history (excluding the first initial instruction and specific messages)
+for message in st.session_state.chat_history[3:]:  # Index 3부터 출력 (초기 지시와 첫 assistant 메시지 제외)
+    if "에 맞게 생성해" not in message["content"] and "나는" not in message["content"]:  # 필터링된 문장 제외
+        role = "User" if message["role"] == "user" else "Chatbot"
+        if role == "User":
+            st.markdown(f'''
+                <div style="
+                    background-color: #ADD8E6; 
+                    text-align: right; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                    margin: 10px 0;
+                    max-width: 80%;
+                    float: right;
+                    clear: both;">
+                    {message["content"]}
+                </div>''', unsafe_allow_html=True)
+        else:
+            st.markdown(f'''
+                <div style="
+                    background-color: #90EE90; 
+                    text-align: left; 
+                    padding: 10px; 
+                    border-radius: 5px; 
+                    margin: 10px 0;
+                    max-width: 80%;
+                    float: left;
+                    clear: both;">
+                    {message["content"]}
+                </div>''', unsafe_allow_html=True)
 
 # Create a form for user input and buttons
 with st.form(key="input_form", clear_on_submit=True):
