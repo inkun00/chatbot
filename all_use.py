@@ -60,6 +60,7 @@ async def execute_completion(completion_request):
                 st.session_state.chat_history.append(
                     {"role": "assistant", "content": chat_data["message"]["content"]}
                 )
+                print("Updated chat history:", st.session_state.chat_history)  # 콘솔에 chat_history 출력
             except json.JSONDecodeError as e:
                 print("JSONDecodeError:", e)
 
@@ -67,7 +68,10 @@ async def execute_completion(completion_request):
 # 사용자의 메시지를 처리하고 API 호출
 def send_message():
     if st.session_state.input_message:
-        user_message = st.session_state.input_message
+        # 사용자가 입력한 메시지에 '사용자 나이에 적절한 건전한 대화를 해주세요.' 문구를 추가
+        user_message = st.session_state.input_message + " 사용자 나이에 적절한 건전한 대화를 해주세요."
+
+        # st.session_state.chat_history에 사용자 메시지 추가
         st.session_state.chat_history.append({"role": "user", "content": user_message})
 
         # API 요청을 위한 데이터 구성
@@ -104,19 +108,26 @@ def update_user_age():
     if grade_level != st.session_state.last_grade_level:
         # 학년에 따라 사용자 나이 설정
         if grade_level == '초등학생':
-            user_age = '13세 이하'
+            user_age = '12살'
         elif grade_level == '중학생':
-            user_age = '16세 이하'
+            user_age = '15살'
         elif grade_level == '고등학생':
-            user_age = '19세 이하'
+            user_age = '18살'
 
         # 세션 상태에 사용자 나이를 저장
         st.session_state.user_age = user_age
         st.session_state.last_grade_level = grade_level
 
+        # 기존에 '나는 {나이}입니다.'로 시작하는 메시지를 chat_history에서 삭제
+        st.session_state.chat_history = [
+            message for message in st.session_state.chat_history
+            if not (message['role'] == 'user' and "사용자는" in message['content'] and "입니다. 사용자 나이에 적절한 건전한 대화를 해주세요." in
+                    message['content'])
+        ]
+
         # 대화 내역에 사용자 연령 메시지 추가
         st.session_state.chat_history.append(
-            {'role': 'user', 'content': f'나는 {st.session_state.user_age} 입니다. 내 연령에 맞는 대화를 해주세요.'}
+            {'role': 'user', 'content': f'사용자는 {st.session_state.user_age} 입니다. 사용자 나이에 적절한 건전한 대화를 해주세요.'}
         )
 
 
@@ -126,35 +137,39 @@ update_user_age()
 for message in st.session_state.chat_history[3:]:
     role = "User" if message["role"] == "user" else "Chatbot"
 
+    # UI에 출력할 때는 '사용자 나이에 적절한 건전한 대화를 해주세요.' 문구를 제거
+    content_to_display = message["content"].replace(" 사용자 나이에 적절한 건전한 대화를 해주세요.", "")
+
     # '나는 {나이}'로 시작하는 메시지는 출력하지 않음
-    if "나는" in message["content"] and "입니다. 내 연령에 맞는 대화를 해주세요." in message["content"]:
+    if "사용자는" in message["content"] and "입니다. 사용자 나이에 적절한 건전한 대화를 해주세요." in message["content"]:
         continue
+
+    # 메시지를 콘솔에 출력 (대신 history 값은 출력하지 않음)
+    print(f"{role}: {message['content']}")
 
     if role == "User":
         st.markdown(f'''
-            <div style="
-                background-color: #ADD8E6; 
-                text-align: right; 
-                padding: 10px; 
-                border-radius: 5px; 
-                margin: 10px 0;
-                max-width: 80%;
-                float: right;
-                clear: both;">
-                {message["content"]}
+            <div style="background-color: #ADD8E6; 
+                        text-align: right; 
+                        padding: 10px; 
+                        border-radius: 5px; 
+                        margin: 10px 0;
+                        max-width: 80%;
+                        float: right;
+                        clear: both;">
+                {content_to_display}
             </div>''', unsafe_allow_html=True)
     else:
         st.markdown(f'''
-            <div style="
-                background-color: #90EE90; 
-                text-align: left; 
-                padding: 10px; 
-                border-radius: 5px; 
-                margin: 10px 0;
-                max-width: 80%;
-                float: left;
-                clear: both;">
-                {message["content"]}
+            <div style="background-color: #90EE90; 
+                        text-align: left; 
+                        padding: 10px; 
+                        border-radius: 5px; 
+                        margin: 10px 0;
+                        max-width: 80%;
+                        float: left;
+                        clear: both;">
+                {content_to_display}
             </div>''', unsafe_allow_html=True)
 
 # 입력 폼 및 버튼
